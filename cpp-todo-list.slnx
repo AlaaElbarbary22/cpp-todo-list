@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="cpp-todo-list/cpp-todo-list.vcxproj" Id="c0b8c462-8938-4816-8918-1016db5ef34f" />
+</Solution>
