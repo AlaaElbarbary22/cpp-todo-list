@@ -28,8 +28,7 @@ g++ -std=c++17 cpp-todo-list.cpp -o todo
 ```
 
 ## Example
-![<img width="1408" height="723" alt="Screenshot 2026-10-30 013644" src="https://github.com/user-attachments/assets/4287ec29-aff2-4bea-ac96-eb1555af4841" />
-](screenshot.png)
+![App screenshot](screenshot.png.png)
 ```
 ===== To-Do List =====
 1. Add task
