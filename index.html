@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>C++ To-Do List | Alaa Elbarbary</title>
+<meta name="description" content="Browser version of a C++ to-do list app built with OOP and file handling.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#161b22;
+  --line:#30363d;
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --accent:#58a6ff;
+  --accent-ink:#0d1117;
+  --danger:#ff7b72;
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.6}
+.wrap{max-width:960px;margin:0 auto;padding:40px 20px 56px}
+header{display:flex;gap:16px;margin-bottom:32px}
+.bar{width:3px;background:var(--accent);flex:none}
+h1{font-size:clamp(28px,5vw,42px);font-weight:500;line-height:1.15;margin:0 0 10px}
+.lead{margin:0 0 16px;color:var(--muted);max-width:56ch}
+.links{display:flex;flex-wrap:wrap;gap:12px}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{display:inline-block;font:500 15px var(--sans);padding:9px 16px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);text-decoration:none;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr);gap:24px;align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:16px}
+h2{font-size:18px;font-weight:500;margin:0}
+.count{color:var(--muted);font-size:14px}
+form{display:flex;gap:8px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+input[type=text]{flex:1;min-width:0;font:400 16px var(--sans);color:var(--text);background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px 12px}
+input[type=text]::placeholder{color:var(--muted)}
+.error{min-height:22px;margin:6px 0 10px;color:var(--danger);font-size:14px}
+ul{list-style:none;margin:0;padding:0}
+li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+li input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none;cursor:pointer}
+li label{flex:1;min-width:0;overflow-wrap:anywhere;cursor:pointer}
+li.done label{color:var(--muted);text-decoration:line-through}
+.del{font:400 14px var(--sans);color:var(--muted);background:none;border:1px solid transparent;border-radius:6px;padding:4px 8px;cursor:pointer}
+.del:hover{color:var(--danger);border-color:var(--line)}
+.empty{color:var(--muted);padding:12px 0 0;border-top:1px solid var(--line);margin:0}
+pre{margin:0;font:400 14px/1.8 var(--mono);overflow-x:auto}
+.row{display:flex;gap:16px;white-space:pre}
+.num{color:var(--muted);width:2ch;text-align:right;flex:none;user-select:none}
+.flag{color:var(--accent)}
+.sep{color:var(--muted)}
+.none{color:var(--muted)}
+.note{margin:16px 0 0;color:var(--muted);font-size:14px;max-width:48ch}
+footer{margin-top:40px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px;display:flex;flex-wrap:wrap;gap:8px 20px}
+@media (max-width:760px){
+  .grid{grid-template-columns:minmax(0,1fr)}
+  .wrap{padding-top:28px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="bar" aria-hidden="true"></div>
+    <div>
+      <h1>C++ To-Do List</h1>
+      <p class="lead">A browser version of my console app built in C++ with OOP and file handling. Add, finish, and delete tasks, and see how they are stored in a text file.</p>
+      <div class="links">
+        <a class="btn" href="https://github.com/AlaaElbarbary22/cpp-todo-list">View the C++ code on GitHub</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/alaa-elbarbary-71b11742a">Connect on LinkedIn</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel" aria-labelledby="tasks-title">
+      <div class="panel-head">
+        <h2 id="tasks-title">Tasks</h2>
+        <span class="count" id="count" aria-live="polite"></span>
+      </div>
+      <form id="form" novalidate>
+        <label class="sr" for="title">Task title</label>
+        <input type="text" id="title" placeholder="What do you need to do?" autocomplete="off">
+        <button class="btn" type="submit">Add task</button>
+      </form>
+      <div class="error" id="error" role="alert"></div>
+      <ul id="list"></ul>
+      <p class="empty" id="empty" hidden>No tasks yet. Add your first one above.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="file-title">
+      <div class="panel-head">
+        <h2 id="file-title">tasks.txt</h2>
+        <span class="count">1 = done, 0 = not done</span>
+      </div>
+      <pre id="file" aria-live="polite"></pre>
+      <p class="note">My C++ program saves tasks in this format, one per line. Every change here rewrites this file, the same way <code>save()</code> does in the C++ class.</p>
+    </section>
+  </main>
+
+  <footer>
+    <span>Built by Alaa Elbarbary, Computer Science student at Tanta University</span>
+    <a href="https://github.com/AlaaElbarbary22">GitHub profile</a>
+  </footer>
+</div>
+
+<script>
+(function () {
+  var KEY = "cpp-todo-tasks";
+  var tasks = load();
+
+  var form = document.getElementById("form");
+  var input = document.getElementById("title");
+  var errorBox = document.getElementById("error");
+  var list = document.getElementById("list");
+  var empty = document.getElementById("empty");
+  var count = document.getElementById("count");
+  var file = document.getElementById("file");
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [
+      { title: "Study C++", done: true },
+      { title: "Push project to GitHub", done: false }
+    ];
+  }
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(tasks)); } catch (e) {}
+  }
+
+  function el(tag, className, text) {
+    var node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function renderList() {
+    list.textContent = "";
+    tasks.forEach(function (task, i) {
+      var li = el("li", task.done ? "done" : "");
+      var id = "task-" + i;
+
+      var box = el("input");
+      box.type = "checkbox";
+      box.id = id;
+      box.checked = task.done;
+      box.addEventListener("change", function () {
+        tasks[i].done = box.checked;
+        save();
+        render();
+      });
+
+      var label = el("label", "", task.title);
+      label.setAttribute("for", id);
+
+      var del = el("button", "del", "Delete");
+      del.type = "button";
+      del.setAttribute("aria-label", "Delete task: " + task.title);
+      del.addEventListener("click", function () {
+        tasks.splice(i, 1);
+        save();
+        render();
+      });
+
+      li.appendChild(box);
+      li.appendChild(label);
+      li.appendChild(del);
+      list.appendChild(li);
+    });
+    empty.hidden = tasks.length > 0;
+    var done = tasks.filter(function (t) { return t.done; }).length;
+    count.textContent = tasks.length ? done + " of " + tasks.length + " done" : "";
+  }
+
+  function renderFile() {
+    file.textContent = "";
+    if (!tasks.length) {
+      file.appendChild(el("span", "none", "(empty file)"));
+      return;
+    }
+    tasks.forEach(function (task, i) {
+      var row = el("div", "row");
+      row.appendChild(el("span", "num", String(i + 1)));
+      var code = el("span", "code");
+      code.appendChild(el("span", "flag", task.done ? "1" : "0"));
+      code.appendChild(el("span", "sep", "|"));
+      code.appendChild(document.createTextNode(task.title));
+      row.appendChild(code);
+      file.appendChild(row);
+    });
+  }
+
+  function render() {
+    renderList();
+    renderFile();
+  }
+
+  form.addEventListener("submit", function (event) {
+    event.preventDefault();
+    var title = input.value.trim();
+    if (!title) {
+      errorBox.textContent = "Title can\u2019t be empty. Type a task and try again.";
+      input.focus();
+      return;
+    }
+    errorBox.textContent = "";
+    tasks.push({ title: title, done: false });
+    input.value = "";
+    save();
+    render();
+    input.focus();
+  });
+
+  input.addEventListener("input", function () {
+    errorBox.textContent = "";
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
